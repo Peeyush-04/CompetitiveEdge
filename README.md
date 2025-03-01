@@ -77,14 +77,3 @@ Visit the [Issues page](https://github.com/Peeyush-04/CompetitiveEdge/issues) to
 ## License
 
 This project is licensed under the [MIT License](LICENSE), allowing you to freely use, modify, and distribute it as needed.
-
----
-
-### Notes
-- **Username and Repo**: Updated badges and links to use `Peeyush-04/CompetitiveEdge`.
-- **No Examples**: Removed all example code and references, focusing solely on instructions and descriptions.
-- **Copy-Paste Ready**: This `README.md` can be directly pasted into your GitHub repository.
-- **Files Assumed**: Assumes `template.cpp` and `debug.h` are separate files in the repo (use the versions from my previous answers).
-- **Animation**: Includes a placeholder for a `demo.gif`—create and upload one to your repo for added appeal.
-
-This version is concise, informative, and visually engaging, perfect for your `CompetitiveEdge` repository. Let me know if you’d like any further adjustments!
