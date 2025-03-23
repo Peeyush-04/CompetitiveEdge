@@ -3,72 +3,93 @@
 ![GitHub repo size](https://img.shields.io/github/repo-size/Peeyush-04/CompetitiveEdge)
 ![GitHub last commit](https://img.shields.io/github/last-commit/Peeyush-04/CompetitiveEdge)
 
-Welcome to the **Competitive Programming C++ Template**! This repository, maintained by [Peeyush-04](https://github.com/Peeyush-04), provides a modular and reusable C++ template designed for competitive programming. Whether you're debugging locally or submitting to online judges like Codeforces or USACO, this template offers flexibility and efficiency to streamline your coding process.
+Welcome to the **Competitive Programming C++ Template**! This repository, maintained by [Peeyush-04](https://github.com/Peeyush-04), offers a modular and reusable C++ template designed to streamline your coding process for competitive programming. Whether you're debugging locally or submitting your solution to online judges like Codeforces or USACO, this template provides flexibility and efficiency for all your contest needs.
 
 ---
 
 ## Features
 
-- **Conditional Debugging**: Provides performance metrics (time, memory) and output comparison for local testing when enabled.
-- **Automatic I/O Redirection**: Switches between file-based I/O for local testing and standard `cin`/`cout` for online judges.
-- **Minimal Design**: Lightweight and optimized for quick submissions to online platforms.
-- **USACO Support**: Compatible with USACO-style file input/output for local practice.
+- **Conditional Debugging:**  
+  Toggle local debugging to display performance metrics (execution time, memory usage) and compare output against expected results.
+
+- **Automatic I/O Redirection:**  
+  Seamlessly switch between file-based input/output for local testing and standard `cin`/`cout` for online submissions.
+
+- **Minimal Design:**  
+  A lightweight template optimized for quick coding and fast submissions on various online platforms.
+
+- **USACO Support:**  
+  Built-in compatibility for USACO-style file input/output, making local practice easier and more efficient.
 
 ---
 
 ## Directory Structure
 
-- **`template.cpp`**: The core template file for both local development and online submissions.
-- **`debug.h`**: Optional debugging utilities, activated only for local testing with a specific compilation flag.
-- **`test/`**: Folder containing:
-  - `test.in`: Input file for local testing.
-  - `test.out`: Output file generated during local runs.
-  - `test-expected.out`: Expected output file for comparison during debugging (optional).
+- **`template.cpp`**  
+  The main template file that includes all core functionalities for both local development and online submissions.
+
+- **`debug.h`**  
+  An optional header providing debugging utilities, enabled only when compiling with the local debug flag.
+
+- **`test/`**  
+  Contains:
+  - `test.in` – Sample input file for local testing.
+  - `test.out` – Output file generated during local execution.
+  - `test-expected.out` – (Optional) Expected output for verifying correctness.
 
 ---
 
 ## How to Use
 
 ### Local Development
-1. **Compile with Debugging**:
+
+1. **Compile with Debugging Enabled:**
    ```bash
    g++ -DLOCAL_DEBUG template.cpp -o program
    ```
-   - Ensure `debug.h` is in the same directory as `template.cpp`.
-2. **Set Up Test Files**:
-   - Place input data in `test/test.in`.
-   - Optionally, add expected output to `test/test-expected.out` for validation.
-3. **Run the Program**:
+   Make sure that `debug.h` is located in the same directory as `template.cpp`.
+
+2. **Prepare Your Test Files:**
+   - Place your input data in `test/test.in`.
+   - (Optional) Provide expected output in `test/test-expected.out` for result comparison.
+
+3. **Run Your Program:**
    ```bash
    ./program
    ```
-   - Output is saved to `test/test.out`.
-   - Debug information (execution time, memory usage, and output comparison) is printed to the console.
+   Your output will be written to `test/test.out` and detailed debug information (like execution time and memory usage) will be displayed in the console.
 
 ### Online Judge Submission
-1. **Prepare the Code**:
+
+1. **Prepare the Code:**
    - Open `template.cpp`.
-   - Comment out or remove the `#include "debug.h"` line.
-   - Modify the `solve()` function to implement your problem-specific logic.
-2. **Submit**:
-   - Copy-paste the modified `template.cpp` into the online judge’s submission interface.
-   - The template uses `cin`/`cout` by default when no local files are detected.
+   - Comment out or remove the `#include "debug.h"` line to disable local debugging features.
+   - Implement your problem-specific solution inside the `solve()` function.
+
+2. **Submit Your Code:**
+   - Copy the modified `template.cpp` into your online judge’s submission interface.
+   - The template uses standard `cin`/`cout` when local debugging is disabled.
 
 ---
 
 ## Customization
 
-- **Problem-Specific Logic**: Update the `solve()` function in `template.cpp` with your solution code.
-- **Additional Headers**: Add required `#include` directives to the "Common Includes" section of `template.cpp`.
-- **Global Variables**: Define any necessary globals above the `solve()` function in `template.cpp`.
+- **Problem-Specific Logic:**  
+  Update the `solve()` function in `template.cpp` with your solution code for each contest problem.
+
+- **Additional Headers:**  
+  Include any extra libraries you need in the "Common Includes" section of `template.cpp`.
+
+- **Global Variables:**  
+  Define any necessary global variables above the `solve()` function.
 
 ---
 
 ## Contributing
 
-We welcome contributions to enhance this template! To get involved:
-- Open an issue to report bugs or suggest features.
-- Submit a pull request with your improvements.
+Contributions are welcome! To get involved:
+- Open an issue to report bugs or suggest improvements.
+- Submit a pull request with your enhancements or fixes.
 
 Visit the [Issues page](https://github.com/Peeyush-04/CompetitiveEdge/issues) to start contributing.
 
@@ -76,4 +97,8 @@ Visit the [Issues page](https://github.com/Peeyush-04/CompetitiveEdge/issues) to
 
 ## License
 
-This project is licensed under the [MIT License](LICENSE), allowing you to freely use, modify, and distribute it as needed.
+This project is licensed under the [MIT License](LICENSE), allowing you to use, modify, and distribute it freely.
+
+---
+
+Happy coding and best of luck in your competitions!
