@@ -122,7 +122,7 @@ bool createDirectory(const string& path) {
 
 // Function to write a file
 void writeToFile(const string& filename, const string& content) {
-    ofstream file(filename);
+    ofstream file(filename, ios::out | ios::binary);
     if (file.is_open()) {
         file << content;
         file.close();
@@ -312,12 +312,13 @@ void createProblemFiles(const string& contestDir, const Problem& problem) {
         cerr << "Failed to create directory: " << problemDir << endl;
         return;
     }
-    // Create solution.cpp file using the unchanged template
+    // Create solution.cpp file using the template
     writeToFile(problemDir + "/solution.cpp", generateCppTemplate(problem));
     
-    // Merge all test case inputs and expected outputs into single files
+    // Merge each test case's input and expected output into separate files.
     ostringstream mergedInput, mergedExpected;
     for (size_t i = 0; i < problem.testCases.size(); ++i) {
+        // Write each test case's input block preserving its newlines.
         mergedInput << problem.testCases[i].first << "\n";
         mergedExpected << problem.testCases[i].second << "\n";
     }
@@ -325,10 +326,24 @@ void createProblemFiles(const string& contestDir, const Problem& problem) {
     writeToFile(problemDir + "/test.in", mergedInput.str());
     writeToFile(problemDir + "/test-expected.out", mergedExpected.str());
     
-    // test.out will be generated when your solution runs in debug mode
+    // test.out will be generated when your solution runs in debug mode.
 }
 
-// Function to parse Codeforces contest
+// Helper: Process a raw sample block that contains multiple test-example-line divs.
+string processTestExampleBlock(const string &raw) {
+    string result;
+    regex lineRegex(R"(<div class="test-example-line[^>]*>(.*?)<\/div>)");
+    smatch m;
+    string::const_iterator searchStart(raw.cbegin());
+    while (regex_search(searchStart, raw.cend(), m, lineRegex)) {
+        // Append the inner text and a newline.
+        result += m[1].str() + "\n";
+        searchStart = m.suffix().first;
+    }
+    return result;
+}
+
+// Function to parse Codeforces contest with updated sample test extraction
 Contest parseCodeforcesContest(const string& contestId) {
     Contest contest;
     contest.platform = "Codeforces";
@@ -337,6 +352,7 @@ Contest parseCodeforcesContest(const string& contestId) {
     string contestUrl = "https://codeforces.com/contest/" + contestId;
     string contestPage = fetchWebContent(contestUrl);
     
+    // Extract contest name from <title>
     size_t namePos = contestPage.find("<title>") + 7;
     size_t nameEnd = contestPage.find(" - ", namePos);
     if (namePos != string::npos && nameEnd != string::npos) {
@@ -345,6 +361,7 @@ Contest parseCodeforcesContest(const string& contestId) {
         contest.name = "Contest " + contestId;
     }
     
+    // Find problems using the common URL pattern
     string problemPattern = "<a href=\"/contest/" + contestId + "/problem/";
     size_t problemPos = contestPage.find(problemPattern);
     map<string, bool> addedProblems;
@@ -359,7 +376,11 @@ Contest parseCodeforcesContest(const string& contestId) {
                 Problem problem;
                 problem.id = problemId;
                 problem.url = contestUrl + "/problem/" + problemId;
+                
+                // Fetch problem page
                 string problemPage = fetchWebContent(problem.url);
+                
+                // Extract problem title from <div class="title">
                 string titlePattern = "<div class=\"title\">";
                 size_t titlePos = problemPage.find(titlePattern);
                 if (titlePos != string::npos) {
@@ -375,45 +396,63 @@ Contest parseCodeforcesContest(const string& contestId) {
                         }
                     }
                 }
+                
+                // Extract sample test cases.
+                // The input/output blocks might either be in a single <pre> or split into multiple divs.
                 string inputPattern = "<div class=\"input\"><div class=\"title\">Input</div><pre>";
                 string outputPattern = "<div class=\"output\"><div class=\"title\">Output</div><pre>";
                 size_t inputPos = problemPage.find(inputPattern);
                 while (inputPos != string::npos) {
                     inputPos += inputPattern.length();
                     size_t inputEnd = problemPage.find("</pre>", inputPos);
-                    if (inputEnd != string::npos) {
-                        string input = problemPage.substr(inputPos, inputEnd - inputPos);
-                        size_t outputPos = problemPage.find(outputPattern, inputEnd);
-                        if (outputPos != string::npos) {
-                            outputPos += outputPattern.length();
-                            size_t outputEnd = problemPage.find("</pre>", outputPos);
-                            if (outputEnd != string::npos) {
-                                string output = problemPage.substr(outputPos, outputEnd - outputPos);
-                                auto cleanHtml = [](string& s) {
-                                    regex r("&lt;"); s = regex_replace(s, r, "<");
-                                    r = regex("&gt;"); s = regex_replace(s, r, ">");
-                                    r = regex("&quot;"); s = regex_replace(s, r, "\"");
-                                    r = regex("&amp;"); s = regex_replace(s, r, "&");
-                                    r = regex("<br\\s*/>"); s = regex_replace(s, r, "\n");
-                                };
-                                cleanHtml(input);
-                                cleanHtml(output);
-                                problem.testCases.push_back({input, output});
-                                inputPos = problemPage.find(inputPattern, outputEnd);
-                            } else {
-                                break;
-                            }
-                        } else {
-                            break;
-                        }
-                    } else {
+                    if (inputEnd == string::npos)
                         break;
+                    
+                    // Extract the raw input block.
+                    string rawInput = problemPage.substr(inputPos, inputEnd - inputPos);
+                    string input;
+                    // If the raw block contains multiple divs, process them.
+                    if (rawInput.find("test-example-line") != string::npos) {
+                        input = processTestExampleBlock(rawInput);
+                    } else {
+                        // Otherwise, use a simple cleanup.
+                        input = rawInput;
+                        input = regex_replace(input, regex("\r\n"), "\n");
+                        input = regex_replace(input, regex("\r"), "\n");
                     }
+                    
+                    // Now extract the corresponding output block.
+                    size_t outputPos = problemPage.find(outputPattern, inputEnd);
+                    if (outputPos == string::npos)
+                        break;
+                    outputPos += outputPattern.length();
+                    size_t outputEnd = problemPage.find("</pre>", outputPos);
+                    if (outputEnd == string::npos)
+                        break;
+                    
+                    string rawOutput = problemPage.substr(outputPos, outputEnd - outputPos);
+                    string output;
+                    if (rawOutput.find("test-example-line") != string::npos) {
+                        output = processTestExampleBlock(rawOutput);
+                    } else {
+                        output = rawOutput;
+                        output = regex_replace(output, regex("\r\n"), "\n");
+                        output = regex_replace(output, regex("\r"), "\n");
+                    }
+                    
+                    // (Optionally, you can apply further HTML entity decoding if needed.)
+                    
+                    // Save the cleaned test case.
+                    problem.testCases.push_back({input, output});
+                    
+                    // Search for the next input block after the current output block.
+                    inputPos = problemPage.find(inputPattern, outputEnd);
                 }
+                
                 if (!problem.testCases.empty()) {
                     contest.problems.push_back(problem);
                     cout << "Found problem " << problemId << ": " << problem.name 
-                         << " with " << problem.testCases.size() << " test cases" << endl;
+                         << " with " << problem.testCases.size() << " test case(s)" << endl;
                 }
             }
         }
